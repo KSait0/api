@@ -1,0 +1,2970 @@
+{
+	"info": {
+		"_postman_id": "8703a4be-d5a0-444e-8efc-5d0694a920e6",
+		"name": "DemoShopping",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19886596",
+		"_collection_link": "https://www.postman.com/galactic-trinity-675719/workspace/demoshopping/collection/19886596-8703a4be-d5a0-444e-8efc-5d0694a920e6?action=share&source=collection_link&creator=19886596"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Возвращает список всех продуктов",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверка, что ответ это JSON\r",
+									"pm.test(\"Response is JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"// Получаем JSON-ответ\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"// Проверка, что массив не пустой\r",
+									"pm.test(\"Response array is not empty\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.be.above(0);\r",
+									"});\r",
+									"\r",
+									"//Проверка, что у всех объектов есть обязательные поля\r",
+									"pm.test(\"All objects have required fields\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    jsonData.forEach(function(item) {\r",
+									"        pm.expect(item).to.have.property('product_id');\r",
+									"        pm.expect(item).to.have.property('name');\r",
+									"        pm.expect(item).to.have.property('price');\r",
+									"        pm.expect(item).to.have.property('category');\r",
+									"        pm.expect(item).to.have.property('manufacturer');\r",
+									"        pm.expect(item).to.have.property('imageUrl');\r",
+									"        pm.expect(item).to.have.property('freeShipping');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"//Проверка, что product_id является числом\r",
+									"pm.test(\"All product_id are numbers\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    jsonData.forEach(function(item) {\r",
+									"        pm.expect(item.product_id).to.be.a('number');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"//Проверка, что price является числом\r",
+									"pm.test(\"All prices are numbers\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    jsonData.forEach(function(item) {\r",
+									"        pm.expect(parseFloat(item.price)).to.be.a('number');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"//Проверка, что поле freeShipping имеет значения либо 0, либо 1.\r",
+									"pm.test(\"All freeShipping values are 0 or 1\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    jsonData.forEach(function(item) {\r",
+									"        pm.expect(item.freeShipping).to.be.oneOf([0, 1]);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"//Проверка, что все imageUrl начинаются с /images/ или с http или htpps\r",
+									"pm.test(\"All imageUrl start with /images/ or http or https\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    jsonData.forEach(function(product) {\r",
+									"        pm.expect(product.imageUrl).to.match(/^\\/images\\/|^https?:\\/\\//);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products",
+							"host": [
+								"{{baseUrl}}products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Добавление нового продукта",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Проверка статус-кода\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Получаем ответ в виде строки\r",
+									"const response = pm.response.text();\r",
+									"\r",
+									"// Используем регулярное выражение для поиска числа после \"ID: \"\r",
+									"const match = response.match(/ID: (\\d+)/);\r",
+									"\r",
+									"if (match) {\r",
+									"    // Извлекаем ID и переводим в число\r",
+									"    const productId = parseInt(match[1], 10);\r",
+									"    console.log(`ID продукта: ${productId}`);\r",
+									"\r",
+									"    // Сохраняем ID в переменную окружения для использования в других запросах\r",
+									"    pm.environment.set(\"productID\", productId);\r",
+									"} else {\r",
+									"    console.log(\"ID не найден\");\r",
+									"}\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // Получаем тело запроса\r",
+									"// const requestData = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+									"\r",
+									"// // Проверка типов данных в отправляемом JSON\r",
+									"// pm.test(\"Name is a string\", function () {\r",
+									"//     pm.expect(requestData.name).to.be.a(\"string\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Description is a string\", function () {\r",
+									"//     pm.expect(requestData.description).to.be.a(\"string\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Price is a number\", function () {\r",
+									"//     pm.expect(requestData.price).to.be.a(\"number\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Category is a string\", function () {\r",
+									"//     pm.expect(requestData.category).to.be.a(\"string\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Manufacturer is a string\", function () {\r",
+									"//     pm.expect(requestData.manufacturer).to.be.a(\"string\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Image URL is a string\", function () {\r",
+									"//     pm.expect(requestData.imageUrl).to.be.a(\"string\");\r",
+									"// });\r",
+									"\r",
+									"// pm.test(\"Free Shipping is a boolean\", function () {\r",
+									"//     pm.expect(requestData.freeShipping).to.be.a(\"boolean\");\r",
+									"// });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{$randomProduct}}\",\r\n  \"description\": \"{{$randomPhrase}}\",\r\n  \"price\": {{$randomPrice}},\r\n  \"category\": \"{{category}}\",\r\n  \"manufacturer\": \"{{manufacturer}}\",\r\n  \"imageUrl\": \"{{imageUrl}}\",\r\n  \"freeShipping\": {{$randomBoolean}}\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}add-product",
+							"host": [
+								"{{baseUrl}}add-product"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Добавление нового продукта (правильные типы данных)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Amazing phone\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 590,\r\n  \"category\": \"Phones\",\r\n  \"manufacturer\": \"Xiaomi\",\r\n  \"imageUrl\": \"https://yerevanmobile.am/media/catalog/product/cache/07720dad39bc68bc6b838050c0f2e34d/1/4/14_10_2.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (новая категория)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (name - не строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": Amazing phone,\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 590,\r\n  \"category\": \"Phones\",\r\n  \"manufacturer\": \"Xiaomi\",\r\n  \"imageUrl\": \"https://yerevanmobile.am/media/catalog/product/cache/07720dad39bc68bc6b838050c0f2e34d/1/4/14_10_2.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (description - не строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Amazing phone\",\r\n  \"description\": This is an example product.,\r\n  \"price\": 590,\r\n  \"category\": \"Phones\",\r\n  \"manufacturer\": \"Xiaomi\",\r\n  \"imageUrl\": \"https://yerevanmobile.am/media/catalog/product/cache/07720dad39bc68bc6b838050c0f2e34d/1/4/14_10_2.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (price - строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (category - не строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (manufacturer - не строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (imageUrl - просто текстовая строка без URL)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (imageUrl - не строка)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Amazing phone\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 590,\r\n  \"category\": \"Phones\",\r\n  \"manufacturer\": \"Xiaomi\",\r\n  \"imageUrl\": https://yerevanmobile.am/media/catalog/product/cache/07720dad39bc68bc6b838050c0f2e34d/1/4/14_10_2.jpg,\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Добавление нового продукта (freeShipping - не Булево значение)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": 100,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}add-product",
+									"host": [
+										"{{baseUrl}}add-product"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Поиск товара по ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Проверка статус-кода\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверка, что ответ это JSON\r",
+									"pm.test(\"Response is JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has all required fields\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    \r",
+									"    // Проверка наличия всех ключей\r",
+									"    pm.expect(jsonData).to.have.property('product_id');\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData).to.have.property('description');\r",
+									"    pm.expect(jsonData).to.have.property('price');\r",
+									"    pm.expect(jsonData).to.have.property('category');\r",
+									"    pm.expect(jsonData).to.have.property('manufacturer');\r",
+									"    pm.expect(jsonData).to.have.property('imageUrl');\r",
+									"    pm.expect(jsonData).to.have.property('freeShipping');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Product ID is a number\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.product_id).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Name is a non-empty string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.name).to.be.a('string').that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Description is a string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.description).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Price is a valid numeric string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.price).to.match(/^\\d+(\\.\\d{1,2})?$/);  // Цифры с двумя десятичными знаками\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Category is a non-empty string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.category).to.be.a('string').that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Manufacturer is a non-empty string\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.manufacturer).to.be.a('string').that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Image URL starts with http or https\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.imageUrl).to.match(/^https?:\\/\\//);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"freeShipping is either 0 or 1\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.freeShipping).to.be.oneOf([0, 1]);\r",
+									"});\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/id/:productId",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"id",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Поиск товара по ID (существующий ID)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "632"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товара по ID (несуществующий ID)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/id/{productId}",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										"{productId}"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Полное обновление товара по ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Проверка статус-кода\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Получаем тело запроса\r",
+									"const requestData = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+									"\r",
+									"// Проверка типов данных в отправляемом JSON\r",
+									"pm.test(\"Name is a string\", function () {\r",
+									"    pm.expect(requestData.name).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Description is a string\", function () {\r",
+									"    pm.expect(requestData.description).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Price is a number\", function () {\r",
+									"    pm.expect(requestData.price).to.be.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Category is a string\", function () {\r",
+									"    pm.expect(requestData.category).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Manufacturer is a string\", function () {\r",
+									"    pm.expect(requestData.manufacturer).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Image URL is a string\", function () {\r",
+									"    pm.expect(requestData.imageUrl).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Free Shipping is a boolean\", function () {\r",
+									"    pm.expect(requestData.freeShipping).to.be.a(\"boolean\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}products/id/:productId",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"id",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Полное обновление товара по ID (несуществующий ID)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "98126"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (name - не строка)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": Name for the test good,\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (description -  не строка)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": Gadjet,\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (price - не число)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": \"9990.00\",\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (category - не строка)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": Laptops,\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (manufacturer - не строка)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": 764,\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (imageUrl - не строка)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg,\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (freeShipping - не Булево значение)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": \"false\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Полное обновление товара по ID (товар успешно обнрвлён)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Name for the test good\",\r\n    \"description\": \"Gadjet\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Частичное обновление товара по ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Получаем тело запроса\r",
+									"const requestData = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+									"\r",
+									"// Проверка типов данных в отправляемом JSON\r",
+									"pm.test(\"Name is a string\", function () {\r",
+									"    pm.expect(requestData.name).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Description is a string\", function () {\r",
+									"    pm.expect(requestData.description).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Price is a number\", function () {\r",
+									"    pm.expect(requestData.price).to.be.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Category is a string\", function () {\r",
+									"    pm.expect(requestData.category).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Manufacturer is a string\", function () {\r",
+									"    pm.expect(requestData.manufacturer).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Image URL is a string\", function () {\r",
+									"    pm.expect(requestData.imageUrl).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Free Shipping is a boolean\", function () {\r",
+									"    pm.expect(requestData.freeShipping).to.be.a(\"boolean\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Проверка статус-кода\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}products/id/:productId",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"id",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Частичное обновление товара по ID (успешное частичное обновление товара)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (несуществующий  ID)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "9945678"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (name - не строка)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": Товар с измененным описанием,\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (description - не строка)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": Изменённое описание,\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (price - не число, статус 200)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": \"9990.00\",\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (category - не строка)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": Laptops,\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (manufacturer - не строка)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": Huawei,\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (imageUrl - не строка, статус 200)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": 345,\r\n    \"freeShipping\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Частичное обновление товара по ID (freeShipping - не Булево значение)",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Товар с измененным описанием\",\r\n    \"description\": \"Изменённое описание\",\r\n    \"price\": 9990.00,\r\n    \"category\": \"Laptops\",\r\n    \"manufacturer\": \"Huawei\",\r\n    \"imageUrl\": \"https://opis-cdn.tinkoffjournal.ru/mercury/laptops-for-work-9.lbefgwwf4wck..jpg\",\r\n    \"freeShipping\": \"I don`t know\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "640"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Удаление товара по ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Проверка статус-кода\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"//Проверка времени ответа\r",
+									"pm.test(\"Response time is less than 1500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/id/:productId",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"id",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Удаление товара по ID (удаление существующего товара)",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "645"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Удаление товара по ID (удаление товара запрещенного к удалению)",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/id/:productId",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										":productId"
+									],
+									"variable": [
+										{
+											"key": "productId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Удаление товара по ID (несуществующий ID)",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/id/{productId}",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"id",
+										"{productId}"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Поиск товаров по категории",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/FindByCategory",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"FindByCategory"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Laptops",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Phones",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Watches",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Поиск товаров по категории (выбор одной категории)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByCategory?category=Phones",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByCategory"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров по категории (выбор несуществующей категории)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByCategory?category=Any",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByCategory"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Phones",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Any"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров по категории (выбор более одной категории, статус 500)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByCategory?category=Laptops&category=Phones",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByCategory"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops"
+										},
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Поиск товаров по производителю",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/FindByManufacturer",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"FindByManufacturer"
+							],
+							"query": [
+								{
+									"key": "manufacturer",
+									"value": "Apple",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Xiaomi",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Huawei",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Samsung",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Поиск товаров по производителю (выбор одного производителя)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByManufacturer?manufacturer=Xiaomi",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByManufacturer"
+									],
+									"query": [
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров по производителю (выбор несуществующего производителя)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByManufacturer?manufacturer=Meizu",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByManufacturer"
+									],
+									"query": [
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Meizu"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров по производителю (выбор более одного производителя, статус 500)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByManufacturer?manufacturer=Xiaomi&manufacturer=Samsung",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByManufacturer"
+									],
+									"query": [
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Поиск товаров с бесплатной доставкой",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/FindByShipping",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"FindByShipping"
+							],
+							"query": [
+								{
+									"key": "freeShipping",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "freeShipping",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Поиск товаров с бесплатной доставкой (выбор одной из опций)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByShipping?freeShipping=false",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByShipping"
+									],
+									"query": [
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров с бесплатной доставкой (выбор обоих опций, статус 200)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByShipping?freeShipping=true&freeShipping=false",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByShipping"
+									],
+									"query": [
+										{
+											"key": "freeShipping",
+											"value": "true"
+										},
+										{
+											"key": "freeShipping",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Поиск товаров с бесплатной доставкой (выбор несуществующей опции, статус 200)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/FindByShipping?freeShipping=any",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"FindByShipping"
+									],
+									"query": [
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "any"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Фильтрация списка продуктов",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}products/filter",
+							"host": [
+								"{{baseUrl}}products"
+							],
+							"path": [
+								"filter"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Laptops",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Phones",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Watches",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Apple",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Xiaomi",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Huawei",
+									"disabled": true
+								},
+								{
+									"key": "manufacturer",
+									"value": "Samsung",
+									"disabled": true
+								},
+								{
+									"key": "freeShipping",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "freeShipping",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Фильтрация списка продуктов (успешная фильтрация с существующими параметрами)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/filter?category=Phones&manufacturer=Huawei&freeShipping=false",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false"
+										},
+										{
+											"key": "minPrice",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "maxPrice",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Фильтрация списка продуктов (фильтрация с несуществующим фильтром, статус 200)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/filter?category=Laptops&manufacturer=Huawei&freeShipping=false&favorite=true",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops"
+										},
+										{
+											"key": "category",
+											"value": "Phones",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false"
+										},
+										{
+											"key": "minPrice",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "maxPrice",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "favorite",
+											"value": "true"
+										},
+										{
+											"key": "favorite",
+											"value": "false",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Фильтрация списка продуктов (выбор всех параметров, статус 500)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/filter?category=Laptops&category=Phones&category=Watches&manufacturer=Apple&manufacturer=Xiaomi&manufacturer=Huawei&manufacturer=Samsung&freeShipping=true&freeShipping=false&minPrice=&maxPrice=",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops"
+										},
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "category",
+											"value": "Watches"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Apple"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung"
+										},
+										{
+											"key": "freeShipping",
+											"value": "true"
+										},
+										{
+											"key": "freeShipping",
+											"value": "false"
+										},
+										{
+											"key": "minPrice",
+											"value": ""
+										},
+										{
+											"key": "maxPrice",
+											"value": ""
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Фильтрация списка продуктов (выбор более одной категории, статус 500)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/filter?category=Laptops&category=Watches",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops"
+										},
+										{
+											"key": "category",
+											"value": "Phones",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Watches"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Apple",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false",
+											"disabled": true
+										},
+										{
+											"key": "minPrice",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "maxPrice",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Фильтрация списка продуктов (выбор более одного производителя, статус 500)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}products/filter?manufacturer=Apple&manufacturer=Xiaomi",
+									"host": [
+										"{{baseUrl}}products"
+									],
+									"path": [
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Laptops",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Phones",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "Watches",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Apple"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Xiaomi"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei",
+											"disabled": true
+										},
+										{
+											"key": "manufacturer",
+											"value": "Samsung",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "freeShipping",
+											"value": "false",
+											"disabled": true
+										},
+										{
+											"key": "minPrice",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "maxPrice",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Авторизация пользователя",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();\r",
+									"pm.environment.set(\"secretKey\", jsonData.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"IvanTester1\",\r\n  \"password\": \"pass135W\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}login",
+							"host": [
+								"{{baseUrl}}login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Регистрация нового пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"string\",\r\n  \"password\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}register",
+							"host": [
+								"{{baseUrl}}register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Добавление нового пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"string\",\r\n  \"password\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}users",
+							"host": [
+								"{{baseUrl}}users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получение всех user_id и login пользователей",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}users",
+							"host": [
+								"{{baseUrl}}users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаляет пользователя по ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}users/:userId",
+							"host": [
+								"{{baseUrl}}users"
+							],
+							"path": [
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Добавляет товар в корзину пользователя",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{secretKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"productId\": 0,\r\n  \"quantity\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}cart",
+							"host": [
+								"{{baseUrl}}cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Возвращает содержимое корзины пользователя",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}getCart",
+							"host": [
+								"{{baseUrl}}getCart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Обновляет количество товара в корзине пользователя",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"quantity\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}cart/:cartItemId",
+							"host": [
+								"{{baseUrl}}cart"
+							],
+							"path": [
+								":cartItemId"
+							],
+							"variable": [
+								{
+									"key": "cartItemId",
+									"value": "{{cartItemId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаляет товар из корзины пользователя",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}cart/:cartItemId",
+							"host": [
+								"{{baseUrl}}cart"
+							],
+							"path": [
+								":cartItemId"
+							],
+							"variable": [
+								{
+									"key": "cartItemId",
+									"value": "{{cartItemId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Получение списка всех заказов пользователя",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}user-orders",
+							"host": [
+								"{{baseUrl}}user-orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Создание заказа из товаров в корзине пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}orders",
+							"host": [
+								"{{baseUrl}}orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаление товара из заказа",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}orders/:orderId/products/:productId",
+							"host": [
+								"{{baseUrl}}orders"
+							],
+							"path": [
+								":orderId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "{{orderId}}"
+								},
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Изменение количества товара в заказе",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"quantity\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}orders/:orderId/products/:productId",
+							"host": [
+								"{{baseUrl}}orders"
+							],
+							"path": [
+								":orderId",
+								"products",
+								":productId"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "{{orderId}}"
+								},
+								{
+									"key": "productId",
+									"value": "{{productID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Обновление общей суммы заказов пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}update-orders-total",
+							"host": [
+								"{{baseUrl}}update-orders-total"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получение данных об оплаченных заказах",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}api/orders-history",
+							"host": [
+								"{{baseUrl}}api"
+							],
+							"path": [
+								"orders-history"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "Оплата заказов пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"string\",\r\n  \"expiry_month\": 0,\r\n  \"expiry_year\": 0,\r\n  \"cvv\": \"string\",\r\n  \"email\": \"user@example.com\",\r\n  \"email_paypal\": \"user@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}pay",
+							"host": [
+								"{{baseUrl}}pay"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Обновление балансов карт и PayPal через GET запрос",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}updateBalances",
+							"host": [
+								"{{baseUrl}}updateBalances"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{secretKey}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://qa.demoshopping.ru/",
+			"type": "string"
+		},
+		{
+			"key": "productID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cartItemId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
